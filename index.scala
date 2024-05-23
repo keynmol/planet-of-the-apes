@@ -15,30 +15,51 @@ val app =
   val text = Var(
     Option(window.localStorage.getItem("planet-of-the-apes")).getOrElse("")
   )
-  val yearVar = Var(new Date().getFullYear().toInt)
+
+  val currentYear = new Date().getFullYear().toInt
+
+  val yearVar = Var(currentYear)
 
   div(
+    cls := "container mx-auto p-4 bg-white grid grid-cols-1",
+    p("Title"),
     input(
       placeholder := "start typing...",
       onInput.mapToValue --> text,
-      value <-- text
+      value <-- text,
+      cls := "m-4 p-4 text-xl w-8/12 border-2 border-slate-700 border-solid"
     ),
+    p("Year by which the thing was definitely released"),
     input(
       placeholder := "year",
       maxLength := 4,
       value <-- yearVar.signal.map(_.toString),
       onInput.mapToValue
         .map(_.toInt)
-        .filter(y => y >= 1971 && y <= 2024) --> yearVar
+        .filter(y => y >= 1971 && y <= currentYear) --> yearVar,
+      cls := "m-4 p-4 text-xl w-8/12 border-2 border-slate-700 border-solid"
     ),
     child <-- text.signal
       .combineWith(yearVar.signal)
       .map:
         case (text, year) =>
           grammar(year).parse(text.trim.toLowerCase()) match
-            case Success(x) => div(x.toString())
+            case Success(x) =>
+              div(
+                cls := "bg-green-700 p-4 text-white text-xl font-bold",
+                x match
+                  case Outcome.OriginalMovie =>
+                    "Congratulations! It is indeed one of the original movies"
+                  case Outcome.MovieRemake =>
+                    "Congratulations! It is indeed the movie remake"
+                  case Outcome.MovieReboot =>
+                    "Congratulations! It is indeed one of the reboots"
+                  case Outcome.AnimatedSeries =>
+                    "Congratulations! It is indeed the original animated series"
+              )
             case Failure(f) =>
               div(
+                cls := "bg-red-700 p-4 text-white text-xl font-bold",
                 s"Unfortunately this is not something from the Planet of the Apes media franchise that was released before year $year :("
               )
     ,
