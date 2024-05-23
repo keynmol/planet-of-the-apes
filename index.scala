@@ -35,7 +35,7 @@ val app =
       .combineWith(yearVar.signal)
       .map:
         case (text, year) =>
-          grammar(year).parse(text) match
+          grammar(year).parse(text.trim.toLowerCase()) match
             case Success(x) => div(x.toString())
             case Failure(f) =>
               div(
@@ -65,32 +65,57 @@ def grammar(year: Int) =
   val ESCAPE = token("Escape")
   val CONQUEST = token("Conquest")
   val BATTLE = token("Battle")
+  val RISE = token("Rise")
+  val DAWN = token("Dawn")
+  val WAR = token("War")
+  val KINGDOM = token("Kingdom")
+  val RETURN = token("Return")
+  val TO = token("to")
+
+  extension (p: Parsley[Outcome])
+    def releasedIn(releaseYear: Int) =
+      Option.when(year >= releaseYear)(p)
+
+  extension (p: Parsley[String])
+    def originalMovie = p.as(Outcome.OriginalMovie)
+    def remake = p.as(Outcome.MovieRemake)
+    def reboot = p.as(Outcome.MovieReboot)
+    def animated = p.as(Outcome.AnimatedSeries)
 
   val originalSeries =
     List(
-      Option.when(year >= 1968)(PLANET_OF_THE_APES.as(Outcome.OriginalMovie)),
-      Option.when(year >= 1970)(
-        (BENEATH ~> THE ~> PLANET_OF_THE_APES).as(Outcome.OriginalMovie)
-      ),
-      Option.when(year >= 1971)(
-        (ESCAPE ~> FROM ~> THE ~> PLANET_OF_THE_APES).as(Outcome.OriginalMovie)
-      ),
-      Option.when(year >= 1972)(
-        (CONQUEST ~> OF ~> THE ~> PLANET_OF_THE_APES).as(Outcome.OriginalMovie)
-      ),
-      Option.when(year >= 1972)(
-        (BATTLE ~> FOR ~> THE ~> PLANET_OF_THE_APES).as(Outcome.OriginalMovie)
-      )
+      PLANET_OF_THE_APES.originalMovie.releasedIn(1968),
+      (BENEATH ~> THE ~> PLANET_OF_THE_APES).originalMovie.releasedIn(1970),
+      (ESCAPE ~> FROM ~> THE ~> PLANET_OF_THE_APES).originalMovie
+        .releasedIn(1971),
+      (CONQUEST ~> OF ~> THE ~> PLANET_OF_THE_APES).originalMovie
+        .releasedIn(1972),
+      (BATTLE ~> FOR ~> THE ~> PLANET_OF_THE_APES).originalMovie
+        .releasedIn(1973)
     ).flatten
 
-  val remake =
+  val remakes =
     List(
-      Option.when(year >= 2001)(PLANET_OF_THE_APES.as(Outcome.MovieRemake))
+      PLANET_OF_THE_APES.remake.releasedIn(2001)
     ).flatten
 
-  (originalSeries ++ remake).foldLeft[Parsley[Outcome]](empty)((res, next) =>
-    res <|> next
-  )
+  val reboots =
+    List(
+      (RISE ~> OF ~> THE ~> PLANET_OF_THE_APES).reboot.releasedIn(2011),
+      (DAWN ~> OF ~> THE ~> PLANET_OF_THE_APES).reboot
+        .releasedIn(2014),
+      (WAR ~> FOR ~> THE ~> PLANET_OF_THE_APES).reboot
+        .releasedIn(2017),
+      (KINGDOM ~> OF ~> THE ~> PLANET_OF_THE_APES).reboot.releasedIn(2024)
+    ).flatten
+
+  val animatedSeries =
+    List(
+      (RETURN ~> TO ~> THE ~> PLANET_OF_THE_APES).animated.releasedIn(1975)
+    ).flatten
+
+  (originalSeries ++ remakes ++ reboots ++ animatedSeries)
+    .foldLeft[Parsley[Outcome]](empty)((res, next) => res <|> next)
 
 end grammar
 
