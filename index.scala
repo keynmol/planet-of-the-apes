@@ -180,8 +180,9 @@ def grammar(year: Int) =
       (RETURN ~> TO ~> THE ~> PLANET_OF_THE_APES).animated.releasedIn(1975)
     ).flatten
 
-  (originalSeries ++ remakes ++ reboots ++ animatedSeries)
-    .foldLeft[Parsley[Outcome]](empty)((res, next) => res <|> next)
+  val alternatives = originalSeries ::: remakes ::: reboots ::: animatedSeries
+
+  parsley.combinator.choice(alternatives*) <~ eof
 
 end grammar
 
