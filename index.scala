@@ -3,41 +3,82 @@
 //> using dep com.raquo::laminar::17.0.0
 //> using dep com.github.j-mie6::parsley::5.0.0-M6
 //> using scala 3.5.0-RC1
+//> using option -Wunused:all
 
 import org.scalajs.dom.*
 import com.raquo.laminar.api.L.*
 import parsley.Parsley, Parsley.*, parsley.character.*
-import scala.scalajs.js.Date
 import parsley.Success
 import parsley.Failure
 
 val app =
+  val restoredText =
+    Option(window.localStorage.getItem("planet-of-the-apes-text"))
+      .getOrElse("Planet of the Apes")
+
   val text = Var(
-    Option(window.localStorage.getItem("planet-of-the-apes")).getOrElse("")
+    restoredText
   )
 
-  val currentYear = new Date().getFullYear().toInt
+  val restoredYear =
+    Option(window.localStorage.getItem("planet-of-the-apes-year"))
+      .flatMap(_.toIntOption)
+      .getOrElse(1972)
 
-  val yearVar = Var(currentYear)
+  val yearVar = Var(restoredYear)
 
   div(
     cls := "container mx-auto p-4 bg-white grid grid-cols-1",
-    p("Title"),
-    input(
-      placeholder := "start typing...",
-      onInput.mapToValue --> text,
-      value <-- text,
-      cls := "m-4 p-4 text-xl w-8/12 border-2 border-slate-700 border-solid"
+    p(
+      cls := "px-4 text-lg",
+      "The ",
+      a(
+        href := "https://en.wikipedia.org/wiki/Planet_of_the_Apes",
+        cls := "underline hover:no-underline",
+        "Planet of the Apes"
+      ),
+      " media franchise is large, and every time a new movie is released I can't help but giggle at how consistent " +
+        "the naming is. Test your own knowledge!"
     ),
-    p("Year by which the thing was definitely released"),
-    input(
-      placeholder := "year",
-      maxLength := 4,
-      value <-- yearVar.signal.map(_.toString),
-      onInput.mapToValue
-        .map(_.toInt)
-        .filter(y => y >= 1971 && y <= currentYear) --> yearVar,
-      cls := "m-4 p-4 text-xl w-8/12 border-2 border-slate-700 border-solid"
+    p(
+      cls := "px-4 text-lg",
+      "Source code is on ",
+      a(
+        href := "https://github.com/keynmol/planet-of-the-apes",
+        cls := "underline hover:no-underline",
+        "Github"
+      ),
+      ", follow me on ",
+      a(
+        href := "https://x.com/velvetbaldmime",
+        cls := "underline hover:no-underline",
+        "Twitter"
+      ),
+      ", subscribe to my ",
+      a(
+        href := "https://blog.indoorvivants.com",
+        cls := "underline hover:no-underline",
+        "Blog"
+      ),
+      "."
+    ),
+    div(
+      cls := "p-4",
+      p("Title"),
+      input(
+        placeholder := "start typing...",
+        onInput.mapToValue --> text,
+        value <-- text,
+        cls := "m-4 p-4 text-xl w-8/12 border-2 border-slate-700 border-solid"
+      ),
+      p("Year by which the thing was definitely released"),
+      input(
+        placeholder := "year",
+        maxLength := 4,
+        value <-- yearVar.signal.map(_.toString),
+        onInput.mapToValue.map(_.toInt) --> yearVar,
+        cls := "m-4 p-4 text-xl w-8/12 border-2 border-slate-700 border-solid"
+      )
     ),
     child <-- text.signal
       .combineWith(yearVar.signal)
@@ -65,7 +106,8 @@ val app =
     ,
     text.signal --> { res =>
       window.localStorage.setItem("planet-of-the-apes", res)
-    }
+    },
+    p(img(src := "/planet-of-the-apes.svg"))
   )
 end app
 
@@ -77,11 +119,10 @@ def grammar(year: Int) =
     atomic(string(str.toLowerCase())) <~ whitespaces.void
 
   val PLANET_OF_THE_APES = token("Planet of the Apes")
-  var FOR = token("for")
-  var FROM = token("from")
-  var THE = token("the")
-  var OF = token("of")
-  val SPACE = token(" ")
+  val FOR = token("for")
+  val FROM = token("from")
+  val THE = token("the")
+  val OF = token("of")
   val BENEATH = token("Beneath")
   val ESCAPE = token("Escape")
   val CONQUEST = token("Conquest")

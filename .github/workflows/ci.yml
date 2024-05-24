@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: npm install && npm run build
+      - uses: coursier/cache-action@v6.3
+      - uses: VirtusLab/scala-cli-setup@main
+      - run: npm install && npm run buildForGithubPages
       - name: Publish gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
