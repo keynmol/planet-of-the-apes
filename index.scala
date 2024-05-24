@@ -10,6 +10,10 @@ import com.raquo.laminar.api.L.*
 import parsley.Parsley, Parsley.*, parsley.character.*
 import parsley.Success
 import parsley.Failure
+import scalajs.js, js.annotation.*
+
+@js.native @JSImport("/planet-of-the-apes.svg", JSImport.Default)
+val imgUrl: String = js.native
 
 val app =
   val restoredText =
@@ -107,7 +111,7 @@ val app =
     text.signal --> { res =>
       window.localStorage.setItem("planet-of-the-apes", res)
     },
-    p(img(src := "/planet-of-the-apes/planet-of-the-apes.svg"))
+    p(img(src := imgUrl))
   )
 end app
 
