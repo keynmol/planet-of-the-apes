@@ -8,6 +8,7 @@
     "build": "npm run buildScalajsRelease && vite build",
     "buildForGithubPages": "npm run buildScalajsRelease && vite build --base=/planet-of-the-apes",
     "preview": "vite preview",
+    "watch": "concurrently npm:watchScalajs npm:dev",
     "watchScalajs": "scala-cli --cli-version nightly package . -w -f -o scalajs-frontend.js --js-module-kind es",
     "buildScalajs": "scala-cli package . -f -o scalajs-frontend.js --js-module-kind es",
     "buildScalajsRelease": "scala-cli --cli-version nightly package . -f -o scalajs-frontend.js --js-mode release --js-module-kind es"
@@ -19,6 +20,7 @@
     "vite": "^5.2.0"
   },
   "dependencies": {
+    "concurrently": "^8.2.2",
     "echarts": "^5.5.0"
   }
 }
