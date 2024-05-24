@@ -8,3 +8,5 @@ Why?
 
 This is a [Scala.js](https://scala-js.org) project using [Laminar](https://laminar.dev).
 Run `npm run watch` and then edit any file you want to modify, changes will be reloaded automatically.
+
+![](/planet-of-the-apes.svg)
