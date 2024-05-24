@@ -107,7 +107,7 @@ val app =
     text.signal --> { res =>
       window.localStorage.setItem("planet-of-the-apes", res)
     },
-    p(img(src := "/planet-of-the-apes.svg"))
+    p(img(src := "/planet-of-the-apes/planet-of-the-apes.svg"))
   )
 end app
 
