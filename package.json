@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run buildScalajsRelease && vite build",
+    "buildForGithubPages": "npm run buildScalajsRelease && vite build --base=/planet-of-the-apes",
     "preview": "vite preview",
     "watchScalajs": "scala-cli --cli-version nightly package . -w -f -o scalajs-frontend.js --js-module-kind es",
     "buildScalajs": "scala-cli package . -f -o scalajs-frontend.js --js-module-kind es",
-    "buildScalajsRelease": "scala-cli package . -f -o scalajs-frontend.js --js-mode release --js-module-kind es"
+    "buildScalajsRelease": "scala-cli --cli-version nightly package . -f -o scalajs-frontend.js --js-mode release --js-module-kind es"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
